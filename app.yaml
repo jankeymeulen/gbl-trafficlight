@@ -4,3 +4,6 @@ api_version: go1
 handlers:
         - url: /.*
           script: _go_app
+        - url: /traffic-light.png
+          static_files: traffic-light.png
+          upload: traffic-light.png
