@@ -5,7 +5,8 @@ import (
 	"encoding/json"
 	"google.golang.org/appengine"
 	"time"
-	//"google.golang.org/appengine/datastore"
+	"google.golang.org/appengine/datastore"
+	"regexp"
 	//"google.golang.org/appengine/log"
 )
 
@@ -65,6 +66,13 @@ func dynamiteHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}	
 	
+	ctx := appengine.NewContext(r)
+	key := datastore.NewIncompleteKey(ctx,"DynamiteCall",nil)
+	if _,err := datastore.Put(ctx,key,&call) ; err != nil {
+		http.Error(w,"Error in datastore: " + err.Error(), 400)
+		return
+	}
+	
 	var reply DynamiteReply
 
 	if call.Type == "ADDED_TO_SPACE" {
@@ -80,11 +88,28 @@ func dynamiteHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleMessage (call DynamiteCall) (string) {
-	return call.Message.Text
+	re := regexp.MustCompile("^((SOLID)|(BLINK)) [[:digit:]]{1,3} [[:digit:]]{1,3} [[:digit:]]{1,3}$")
+	if re.MatchString(call.Message.Text) {
+		return "Valid command: " + call.Message.Text
+	} else {
+		return "Invalid command: " + call.Message.Text
+	}
+}
+
+func parseEffect (message string) (Effect) {
+	var e Effect
+	return e
 }
 
 func effectHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w,"Hello world!")
+		ctx := appengine.NewContext(r)
+		q := datastore.NewQuery("DynamiteCall").Order("-EventTime").Limit(1)
+		var calls []DynamiteCall
+		if _, err := q.GetAll(ctx, &calls); err != nil {
+			http.Error(w,"Error retrieving from datastore: " + err.Error(), 400)
+			return
+		}
+		fmt.Fprintf(w,"Hello world! "+calls[0].Message.Text)
 }
 
 func main() {
