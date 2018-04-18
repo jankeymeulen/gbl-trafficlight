@@ -98,7 +98,7 @@ func parseEffect (message string) (Effect) {
 
 func effectHandler(w http.ResponseWriter, r *http.Request) {
 		ctx := appengine.NewContext(r)
-		q := datastore.NewQuery("DynamiteCall").Order("-Message.CreateTime").Limit(1)
+		q := datastore.NewQuery("DynamiteCall").Order("Message.CreateTime").Limit(1)
 		var calls []DynamiteCall
 		if _, err := q.GetAll(ctx, &calls); err != nil {
 			http.Error(w,"Error retrieving from datastore: " + err.Error(), 400)
