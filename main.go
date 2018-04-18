@@ -10,6 +10,11 @@ import (
 	//"google.golang.org/appengine/log"
 )
 
+type Effect struct {
+	Name	string
+	Colour	Colour
+}
+
 type DynamiteReply struct {
 	Text	string	`json:"text"`
 }
@@ -39,18 +44,6 @@ type DynamiteCall struct {
 	} `json:"message"`
 }
 
-type Effect struct {
-	Name	string
-	Colour struct {
-		R int8
-		G int8
-		B int8
-	}
-	UpdateTime	time.Time
-}
-
-
-
 func dynamiteHandler(w http.ResponseWriter, r *http.Request) {
 
 	var call DynamiteCall
@@ -76,7 +69,8 @@ func dynamiteHandler(w http.ResponseWriter, r *http.Request) {
 	var reply DynamiteReply
 
 	if call.Type == "ADDED_TO_SPACE" {
-			reply.Text = "Thanks for adding me!"
+		reply.Text = "Thanks for adding me! You can control me by telling me which effect "+
+		"to display and in which colour. For example: \"SOLID 255 0 0\" turns me solid red."
 		}
 	if call.Type == "MESSAGE" {
 			var response = handleMessage(call)
@@ -98,6 +92,7 @@ func handleMessage (call DynamiteCall) (string) {
 
 func parseEffect (message string) (Effect) {
 	var e Effect
+	e.Name = message
 	return e
 }
 
@@ -109,7 +104,8 @@ func effectHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w,"Error retrieving from datastore: " + err.Error(), 400)
 			return
 		}
-		fmt.Fprintf(w,"Hello world! "+calls[0].Message.Text)
+		var e Effect = parseEffect(calls[0].Message.Text)
+		fmt.Fprintf(w,e.Name) //+","+e.Colour.R+","+e.Colour.G+","+e.Colour.B)
 }
 
 func main() {
