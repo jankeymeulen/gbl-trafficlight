@@ -91,7 +91,10 @@ func dynamiteHandler(w http.ResponseWriter, r *http.Request) {
 func handleMessage(call DynamiteCall) string {
 	re := regexp.MustCompile("(?i)^.*(" + effectre + ") ((" + rgbre + ")|(" + colourre + "))$")
 	if re.MatchString(call.Message.Text) {
-		return "Valid command: " + call.Message.Text
+		message := call.Message.Text
+		e := parseEffect(message)
+		return "Valid command: " + message + " ( parsed to: [" +
+			e.Name+","+strconv.Itoa(int(e.Colour.R))+","+strconv.Itoa(int(e.Colour.G))+","+strconv.Itoa(int(e.Colour.B))+"] )"
 	} else {
 		return "Invalid command: " + call.Message.Text
 	}
