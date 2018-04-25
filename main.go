@@ -137,7 +137,7 @@ func effectHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var e Effect = parseEffect(calls[0].Message.Text)
-	fmt.Fprintf(w, e.Name+","+strconv.Itoa(int(e.Colour.R))+","+strconv.Itoa(int(e.Colour.G))+","+strconv.Itoa(int(e.Colour.B)))
+	fmt.Fprintf(w, e.Name+" "+strconv.Itoa(int(e.Colour.R))+" "+strconv.Itoa(int(e.Colour.G))+" "+strconv.Itoa(int(e.Colour.B)))
 }
 
 func main() {
