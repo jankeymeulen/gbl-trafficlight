@@ -13,7 +13,7 @@ import (
 	//"google.golang.org/appengine/log"
 )
 
-const effectre = "(SOLID)|(BLINK)"
+const effectre = "(SOLID)|(BLINK)|(RUN)|(CYLON)|(PONG)|(SPARKLE)|(RAINBOW)|(THEATRE)|(FIRE)"
 const rgbre = "[[:digit:]]{1,3} [[:digit:]]{1,3} [[:digit:]]{1,3}"
 const colourre = "(aliceblue)|(antiquewhite)|(aqua)|(aquamarine)|(azure)|(beige)|(bisque)|(black)|(blanchedalmond)|(blue)|(blueviolet)|(brown)|(burlywood)|(cadetblue)|(chartreuse)|(chocolate)|(coral)|(cornflowerblue)|(cornsilk)|(crimson)|(cyan)|(darkblue)|(darkcyan)|(darkgoldenrod)|(darkgray)|(darkgreen)|(darkgrey)|(darkkhaki)|(darkmagenta)|(darkolivegreen)|(darkorange)|(darkorchid)|(darkred)|(darksalmon)|(darkseagreen)|(darkslateblue)|(darkslategray)|(darkslategrey)|(darkturquoise)|(darkviolet)|(deeppink)|(deepskyblue)|(dimgray)|(dimgrey)|(dodgerblue)|(firebrick)|(floralwhite)|(forestgreen)|(fuchsia)|(gainsboro)|(ghostwhite)|(gold)|(goldenrod)|(gray)|(grey)|(green)|(greenyellow)|(honeydew)|(hotpink)|(indianred)|(indigo)|(ivory)|(khaki)|(lavender)|(lavenderblush)|(lawngreen)|(lemonchiffon)|(lightblue)|(lightcoral)|(lightcyan)|(lightgoldenrodyellow)|(lightgray)|(lightgreen)|(lightgrey)|(lightpink)|(lightsalmon)|(lightseagreen)|(lightskyblue)|(lightslategray)|(lightslategrey)|(lightsteelblue)|(lightyellow)|(lime)|(limegreen)|(linen)|(magenta)|(maroon)|(mediumaquamarine)|(mediumblue)|(mediumorchid)|(mediumpurple)|(mediumseagreen)|(mediumslateblue)|(mediumspringgreen)|(mediumturquoise)|(mediumvioletred)|(midnightblue)|(mintcream)|(mistyrose)|(moccasin)|(navajowhite)|(navy)|(oldlace)|(olive)|(olivedrab)|(orange)|(orangered)|(orchid)|(palegoldenrod)|(palegreen)|(paleturquoise)|(palevioletred)|(papayawhip)|(peachpuff)|(peru)|(pink)|(plum)|(powderblue)|(purple)|(red)|(rosybrown)|(royalblue)|(saddlebrown)|(salmon)|(sandybrown)|(seagreen)|(seashell)|(sienna)|(silver)|(skyblue)|(slateblue)|(slategray)|(slategrey)|(snow)|(springgreen)|(steelblue)|(tan)|(teal)|(thistle)|(tomato)|(turquoise)|(violet)|(wheat)|(white)|(whitesmoke)|(yellow)|(yellowgreen)"
 
@@ -77,7 +77,8 @@ func dynamiteHandler(w http.ResponseWriter, r *http.Request) {
 
 	if call.Type == "ADDED_TO_SPACE" {
 		reply.Text = "Thanks for adding me! You can control me by telling me which effect " +
-			"to display and in which colour. For example: \"SOLID 255 0 0\" turns me solid red."
+			"to display and in which colour. For example: \"SOLID 255 0 0\" turns me solid red." +
+			"SPARKLE yellow will give yellow sparkles and so on."
 	}
 	if call.Type == "MESSAGE" {
 		var response = handleMessage(call)
@@ -93,8 +94,9 @@ func handleMessage(call DynamiteCall) string {
 	if re.MatchString(call.Message.Text) {
 		message := call.Message.Text
 		e := parseEffect(message)
-		return "Valid command: " + message + " ( parsed to: [" +
-			e.Name+","+strconv.Itoa(int(e.Colour.R))+","+strconv.Itoa(int(e.Colour.G))+","+strconv.Itoa(int(e.Colour.B))+"] )"
+		//return "Valid command: " + message + " ( parsed to: [" +
+		//	e.Name+","+strconv.Itoa(int(e.Colour.R))+","+strconv.Itoa(int(e.Colour.G))+","+strconv.Itoa(int(e.Colour.B))+"] )"
+		return fmt.Sprintf("Thanks! Setting the LEDs to %s in %s.",strings.ToLower(e.Name),e.Colour.Name)
 	} else {
 		return "Invalid command: " + call.Message.Text
 	}
@@ -106,7 +108,7 @@ func parseEffect(message string) Effect {
 	e.Name = strings.ToUpper(re.FindString(message))
 	re = regexp.MustCompile("(?i)"+colourre)
 	var c Colour
-	if re.MatchString(colourre) {
+	if re.MatchString(message) {
 		c = getColourMap()[strings.ToLower(re.FindString(message))]
 	} else {
 		re = regexp.MustCompile(rgbre)
@@ -115,7 +117,7 @@ func parseEffect(message string) Effect {
 		r,_ = strconv.Atoi(rgb[0])
 		g,_ = strconv.Atoi(rgb[1])
 		b,_ = strconv.Atoi(rgb[2])
-		c.Name = "custom"
+		c.Name = "your own custom colour"
 		c.R = uint8(r)
 		c.G = uint8(g)
 		c.B = uint8(b)
