@@ -17,6 +17,10 @@ const effectre = "(SOLID)|(BLINK)|(RUN)|(CYLON)|(PONG)|(SPARKLE)|(RAINBOW)|(THEA
 const rgbre = "[[:digit:]]{1,3} [[:digit:]]{1,3} [[:digit:]]{1,3}"
 const colourre = "(aliceblue)|(antiquewhite)|(aqua)|(aquamarine)|(azure)|(beige)|(bisque)|(black)|(blanchedalmond)|(blue)|(blueviolet)|(brown)|(burlywood)|(cadetblue)|(chartreuse)|(chocolate)|(coral)|(cornflowerblue)|(cornsilk)|(crimson)|(cyan)|(darkblue)|(darkcyan)|(darkgoldenrod)|(darkgray)|(darkgreen)|(darkgrey)|(darkkhaki)|(darkmagenta)|(darkolivegreen)|(darkorange)|(darkorchid)|(darkred)|(darksalmon)|(darkseagreen)|(darkslateblue)|(darkslategray)|(darkslategrey)|(darkturquoise)|(darkviolet)|(deeppink)|(deepskyblue)|(dimgray)|(dimgrey)|(dodgerblue)|(firebrick)|(floralwhite)|(forestgreen)|(fuchsia)|(gainsboro)|(ghostwhite)|(gold)|(goldenrod)|(gray)|(grey)|(green)|(greenyellow)|(honeydew)|(hotpink)|(indianred)|(indigo)|(ivory)|(khaki)|(lavender)|(lavenderblush)|(lawngreen)|(lemonchiffon)|(lightblue)|(lightcoral)|(lightcyan)|(lightgoldenrodyellow)|(lightgray)|(lightgreen)|(lightgrey)|(lightpink)|(lightsalmon)|(lightseagreen)|(lightskyblue)|(lightslategray)|(lightslategrey)|(lightsteelblue)|(lightyellow)|(lime)|(limegreen)|(linen)|(magenta)|(maroon)|(mediumaquamarine)|(mediumblue)|(mediumorchid)|(mediumpurple)|(mediumseagreen)|(mediumslateblue)|(mediumspringgreen)|(mediumturquoise)|(mediumvioletred)|(midnightblue)|(mintcream)|(mistyrose)|(moccasin)|(navajowhite)|(navy)|(oldlace)|(olive)|(olivedrab)|(orange)|(orangered)|(orchid)|(palegoldenrod)|(palegreen)|(paleturquoise)|(palevioletred)|(papayawhip)|(peachpuff)|(peru)|(pink)|(plum)|(powderblue)|(purple)|(red)|(rosybrown)|(royalblue)|(saddlebrown)|(salmon)|(sandybrown)|(seagreen)|(seashell)|(sienna)|(silver)|(skyblue)|(slateblue)|(slategray)|(slategrey)|(snow)|(springgreen)|(steelblue)|(tan)|(teal)|(thistle)|(tomato)|(turquoise)|(violet)|(wheat)|(white)|(whitesmoke)|(yellow)|(yellowgreen)"
 
+const usageString = "Usage:\n\n<command> ::= <effect> (<colour>|<rgb>)\n\n\t<effect> ::= "+effectre+
+		"\n\t<colour> ::= <Any of the CSS colour names https://www.w3schools.com/cssref/css_colors.asp>"+
+		"\n\t<rgb> ::= <Red 0..255> <Green 0..255> <Blue 0..255>\n\nEverything is case *in*sensitive."
+
 type Effect struct {
 	Name   string
 	Colour Colour
@@ -76,9 +80,7 @@ func dynamiteHandler(w http.ResponseWriter, r *http.Request) {
 	var reply DynamiteReply
 
 	if call.Type == "ADDED_TO_SPACE" {
-		reply.Text = "Thanks for adding me! You can control me by telling me which effect " +
-			"to display and in which colour. For example: \"SOLID 255 0 0\" turns me solid red." +
-			"SPARKLE yellow will give yellow sparkles and so on."
+		reply.Text = "Thanks for adding me!\n"+usageString;
 	}
 	if call.Type == "MESSAGE" {
 		reply.Text = handleMessage(call) 
@@ -99,9 +101,7 @@ func handleMessage(call DynamiteCall) string {
 	} 
 	re = regexp.MustCompile("(?i)^.*(help)$")
 	if re.MatchString(call.Message.Text) {
-		return "Usage:\n\n<command> ::= <effect> (<colour>|<rgb>)\n\n\t<effect> ::= "+effectre+
-		"\n\t<colour> ::= <Any of the CSS colour names https://www.w3schools.com/cssref/css_colors.asp>"+
-		"\n\t<rgb> ::= <Red 0..255> <Green 0..255> <Blue 0..255>\n\nEverything is case insensitive."
+		return usageString;
 	} else {
 		return "Invalid command: " + call.Message.Text
 	}
