@@ -105,6 +105,11 @@ int belgiumStart = 0;
 #define FRANCE_DELAY 40
 int franceStart = 0;
 
+/* England stuff */
+#define ENGLAND_COUNT 3
+#define ENGLAND_DELAY 40
+int englandStart = 0;
+
 void setup() {
 
 
@@ -230,6 +235,9 @@ void ledTask(void* parameter)
     } else if ( strcmp(effect, "FRANCE" ) == 0 ) {
       fillFrance();
     }
+    } else if ( strcmp(effect, "ENGLAND" ) == 0 ) {
+      fillEngland();
+    }
     FastLED.show();
     vTaskDelay(1);
   }
@@ -304,6 +312,29 @@ void fillFrance() {
     if(franceStart >= NUM_LEDS)
     {
       franceStart = 0;
+    }
+
+    previousFrame = millis();
+  }
+}
+
+void fillEngland() {
+  if (previousFrame + ENGLAND_DELAY < millis()) {
+    int flagWidth = ceil(NUM_LEDS/ENGLAND_COUNT);
+    
+    for (int i = 0; i < NUM_LEDS; i++)
+    {
+      int segment = floor(((i+englandStart)%flagWidth)/ceil(flagWidth/2));
+      if (segment == 0) {
+        leds[i] = CRGB::Red;
+      } else if (segment == 1) {
+        leds[i] = CRGB::White;
+      }
+    }
+    englandStart++;
+    if(englandStart >= NUM_LEDS)
+    {
+      englandStart = 0;
     }
 
     previousFrame = millis();
@@ -575,5 +606,3 @@ void setPixelHeatColor (int pixel, byte temperature) {
     leds[pixel].setRGB(heatramp, 0, 0);
   }
 }
-
-
